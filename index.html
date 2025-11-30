@@ -278,7 +278,8 @@
             if (Math.abs(det) < 0.000001) {
                 resultDiv.className = 'p-3 bg-red-100 rounded-lg text-red-800 font-bold';
                 resultDiv.innerHTML = 'System has NO UNIQUE solution (Determinant is zero).';
-                workingDiv.innerHTML += '<div class="working-step text-red-700">Determinant $\\Delta = 0$. No unique solution exists (infinite solutions or no solution).</div>';
+                // FIX: Removed LaTeX $ symbols
+                workingDiv.innerHTML += '<div class="working-step text-red-700">Determinant D is zero. No unique solution exists (infinite solutions or no solution).</div>';
                 return;
             }
 
@@ -295,7 +296,8 @@
                 // Eliminate below pivot
                 for (let k = i + 1; k < size; k++) { // Target row (k)
                     const factor = M[k][i] / pivot;
-                    workingDiv.innerHTML += `<div class="working-step">Step: R${k+1} = R${k+1} - (${format(factor)} $\\times$ R${i+1}) to eliminate ${variables[i]} from R${k+1}.</div>`;
+                    // FIX: Replaced $\\times$ with plain *
+                    workingDiv.innerHTML += `<div class="working-step">Step: R${k+1} = R${k+1} - (${format(factor)} * R${i+1}) to eliminate ${variables[i]} from R${k+1}.</div>`;
 
                     for (let j = i; j <= size; j++) { // Column index (j)
                         M[k][j] = M[k][j] - factor * M[i][j];
@@ -316,7 +318,8 @@
                     sum += M[i][j] * solution[j];
                 }
                 solution[i] = (M[i][size] - sum) / M[i][i];
-                workingDiv.innerHTML += `<div class="working-step">Solve for ${variables[i]}: <br> $${variables[i]} = (${format(M[i][size])} - ${format(sum)}) / ${format(M[i][i])} = ${format(solution[i])}$</div>`;
+                // FIX: Removed LaTeX $ symbols
+                workingDiv.innerHTML += `<div class="working-step">Solve for ${variables[i]}: <br> ${variables[i]} = (${format(M[i][size])} - ${format(sum)}) / ${format(M[i][i])} = ${format(solution[i])}</div>`;
             }
 
             // Final Result
@@ -361,12 +364,14 @@
             // 2. Calculate Determinant D
             const D = getDeterminant(A);
 
-            workingDiv.innerHTML += `<div class="working-step">Step 1: Calculate Determinant $D$ (Coefficient Matrix). $D = ${format(D)}$</div>`;
+            // FIX: Removed LaTeX $ symbols
+            workingDiv.innerHTML += `<div class="working-step">Step 1: Calculate Determinant D (Coefficient Matrix). D = ${format(D)}</div>`;
 
             if (Math.abs(D) < 0.000001) {
                 resultDiv.className = 'p-3 bg-red-100 rounded-lg text-red-800 font-bold';
-                resultDiv.innerHTML = 'System has NO UNIQUE solution (Determinant $D$ is zero).';
-                workingDiv.innerHTML += '<div class="working-step text-red-700">Since $D \\approx 0$, no unique solution exists (infinite solutions or no solution).</div>';
+                resultDiv.innerHTML = 'System has NO UNIQUE solution (Determinant D is zero).';
+                // FIX: Removed LaTeX $ symbols
+                workingDiv.innerHTML += '<div class="working-step text-red-700">Since D is approximately 0, no unique solution exists (infinite solutions or no solution).</div>';
                 return;
             }
 
@@ -385,7 +390,8 @@
                 const val = D_i / D;
                 solutions.push(val);
 
-                workingDiv.innerHTML += `<div class="working-step">Step ${i + 2}: Calculate Determinant $D_{${variables[i]}}$ (by substituting B into column ${i+1}). <br> $D_{${variables[i]}} = ${format(D_i)}$ <br> ${variables[i]} = $D_{${variables[i]}} / D = ${format(D_i)} / ${format(D)} = ${format(val)} $</div>`;
+                // FIX: Removed LaTeX $ symbols
+                workingDiv.innerHTML += `<div class="working-step">Step ${i + 2}: Calculate Determinant D${variables[i]} (by substituting B into column ${i+1}). <br> D${variables[i]} = ${format(D_i)} <br> ${variables[i]} = D${variables[i]} / D = ${format(D_i)} / ${format(D)} = ${format(val)} </div>`;
 
                 resultDisplay += `${variables[i]} = ${format(val)}`;
                 if (i < size - 1) resultDisplay += ', ';
@@ -456,7 +462,7 @@
             workingDiv.innerHTML += `<div class="working-step">Addition (V1 + V2): <br> ${formatVector(V1)} + ${formatVector(V2)} = ${formatVector(V_add)}</div>`;
             workingDiv.innerHTML += `<div class="working-step">Subtraction (V1 - V2): <br> ${formatVector(V1)} - ${formatVector(V2)} = ${formatVector(V_sub)}</div>`;
             workingDiv.innerHTML += `<div class="working-step">Dot Product (V1 &middot; V2): <br> Calculation: ${V1.map((v, i) => `(${format(v)} &times; ${format(V2[i])})`).join(' + ')} = ${format(dot_product)}</div>`;
-            workingDiv.innerHTML += `<div class="working-step">Magnitude of V1 ($\|V_1\|$): <br> $\sqrt{${V1.map(v => `${format(v)}^2`).join(' + ')}} = ${format(mag_v1)}$</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Magnitude of V1 (||V1||): <br> &radic;(${V1.map(v => `${format(v)}^2`).join(' + ')}) = ${format(mag_v1)}</div>`;
 
             // 4. Result Output
             resultDiv.className = 'p-3 bg-indigo-500 text-white rounded-lg text-xl font-bold';
@@ -474,7 +480,7 @@
             }
         }
 
-        // --- Canvas Drawing Function (updated labels) ---
+        // --- Canvas Drawing Function (updated labels and aesthetics) ---
         function drawVectors(V1, V2, V_result) {
             const canvas = document.getElementById('vectorCanvas');
             const ctx = canvas.getContext('2d');
@@ -500,7 +506,7 @@
             ctx.clearRect(0, 0, width, height);
 
             // Draw Grid (using label interval for major grid lines)
-            ctx.strokeStyle = '#e0e0e0';
+            ctx.strokeStyle = '#f0f0f0'; // Lighter grid lines
             ctx.lineWidth = 0.5;
             for (let i = -width; i <= width; i += labelInterval * dynamicScale) {
                 // Vertical lines
@@ -520,7 +526,7 @@
             }
 
             // Draw Axes
-            ctx.strokeStyle = '#000000';
+            ctx.strokeStyle = '#aaaaaa'; // Grayer axes
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(centerX, 0); ctx.lineTo(centerX, height); // Y-axis
@@ -567,6 +573,13 @@
                     ctx.fillText(i.toString(), centerX + 5, yPos + 4);
                 }
             }
+            
+            // Draw Origin Point (The single point requested)
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 3, 0, Math.PI * 2, true); // Radius 3 point at origin
+            ctx.fill();
+
 
             // Function to draw an arrow (vector)
             function drawArrow(v, color, label) {
