@@ -62,7 +62,7 @@
     <div class="max-w-7xl mx-auto">
         <header class="text-center py-6 mb-8 bg-white shadow-lg rounded-xl">
             <h1 class="text-3xl md:text-5xl font-extrabold text-indigo-700">Linear Algebra Toolkit (N x N)</h1>
-            <p class="text-gray-500 mt-2">Gaussian Elimination, Cramer's Rule, and Vector Operations (2D)</p>
+            <p class="text-gray-500 mt-2">Gaussian Elimination, Cramer's Rule, and Vector Operations (N-D)</p>
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -123,26 +123,23 @@
 
             <!-- Vector Operations & Graph -->
             <div id="vector-operations" class="bg-white p-6 shadow-xl rounded-xl border border-indigo-100">
-                <h2 class="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">3. Vector Operations (2D)</h2>
-                <div class="space-y-4">
-                    <!-- Vector 1 Input: <x1, y1> -->
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xl font-semibold">V1: $\langle$</span>
-                        <input type="number" id="v1_x" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="x1">
-                        <span class="text-xl">,</span>
-                        <input type="number" id="v1_y" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="y1">
-                        <span class="text-xl">$\rangle$</span>
-                    </div>
-                    <!-- Vector 2 Input: <x2, y2> -->
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xl font-semibold">V2: $\langle$</span>
-                        <input type="number" id="v2_x" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="x2">
-                        <span class="text-xl">,</span>
-                        <input type="number" id="v2_y" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="y2">
-                        <span class="text-xl">$\rangle$</span>
-                    </div>
-                    <button onclick="calculateVectorOperations()" class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-150 shadow-md">Calculate & Plot</button>
+                <h2 class="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">3. Vector Operations (N-D)</h2>
+
+                <div class="mb-4 flex items-center justify-between">
+                    <label for="vo_size_selector" class="text-sm font-medium text-gray-700">Vector Dimension (N):</label>
+                    <select id="vo_size_selector" onchange="renderVectorInputs(this.value)" class="p-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="2">2D</option>
+                        <option value="3">3D</option>
+                        <option value="4">4D</option>
+                    </select>
                 </div>
+
+                <div class="space-y-4" id="vo_input_container">
+                    <!-- Inputs rendered here by JS -->
+                </div>
+
+                <button onclick="calculateVectorOperations()" class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-150 shadow-md mt-4">Calculate & Plot (2D Only)</button>
+
                 <h3 class="text-xl font-semibold mt-6 mb-3 text-indigo-700">Results & Plot</h3>
                 <div id="vo_result" class="p-3 bg-indigo-50 rounded-lg text-gray-800 font-bold mb-4">Enter values and click Calculate & Plot.</div>
                 <canvas id="vectorCanvas" width="300" height="300" class="border border-gray-300 rounded-lg mx-auto bg-white"></canvas>
@@ -173,7 +170,7 @@
             return num.toFixed(2);
         }
 
-        // --- Dynamic Input Rendering ---
+        // --- Dynamic Matrix Input Rendering (for GE/CR) ---
         function renderMatrixInputs(idPrefix, size) {
             size = parseInt(size);
             const container = document.getElementById(`${idPrefix}_input_container`);
@@ -369,7 +366,7 @@
             if (Math.abs(D) < 0.000001) {
                 resultDiv.className = 'p-3 bg-red-100 rounded-lg text-red-800 font-bold';
                 resultDiv.innerHTML = 'System has NO UNIQUE solution (Determinant $D$ is zero).';
-                workingDiv.innerHTML += '<div class="working-step text-red-700">Since $D \approx 0$, no unique solution exists (infinite solutions or no solution).</div>';
+                workingDiv.innerHTML += '<div class="working-step text-red-700">Since $D \\approx 0$, no unique solution exists (infinite solutions or no solution).</div>';
                 return;
             }
 
@@ -399,42 +396,85 @@
             resultDiv.innerHTML = `Solution: ${resultDisplay}`;
         }
 
+        // --- Dynamic Vector Input Rendering (for VO) ---
+        function renderVectorInputs(size) {
+            size = parseInt(size);
+            const container = document.getElementById('vo_input_container');
+            const variables = ['x', 'y', 'z', 'w'];
+            let html = '';
 
-        // --- Core Functions for Vector Operations ---
-        function calculateVectorOperations() {
-            const v1_x = getFloatValue('v1_x');
-            const v1_y = getFloatValue('v1_y');
-            const v2_x = getFloatValue('v2_x');
-            const v2_y = getFloatValue('v2_y');
+            // Render V1 inputs
+            html += `<div class="flex items-center space-x-1">
+                        <span class="text-xl font-semibold">V1: &lt;</span>`;
+            for (let i = 0; i < size; i++) {
+                html += `<input type="number" id="v1_${variables[i]}" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="${variables[i]}1">`;
+                if (i < size - 1) html += `<span class="text-xl">,</span>`;
+            }
+            html += `<span class="text-xl">&gt;</span></div>`;
 
-            // 1. Calculations
-            const V1 = [v1_x, v1_y];
-            const V2 = [v2_x, v2_y];
+            // Render V2 inputs
+            html += `<div class="flex items-center space-x-1">
+                        <span class="text-xl font-semibold">V2: &lt;</span>`;
+            for (let i = 0; i < size; i++) {
+                html += `<input type="number" id="v2_${variables[i]}" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="${variables[i]}2">`;
+                if (i < size - 1) html += `<span class="text-xl">,</span>`;
+            }
+            html += `<span class="text-xl">&gt;</span></div>`;
 
-            const V_add = [v1_x + v2_x, v1_y + v2_y];
-            const V_sub = [v1_x - v2_x, v1_y - v2_y];
-            const dot_product = v1_x * v2_x + v1_y * v2_y;
-            const mag_v1 = Math.sqrt(v1_x * v1_x + v1_y * v1_y);
-
-            // 2. Working Output
-            const workingDiv = document.getElementById('vo_working');
-            workingDiv.innerHTML = `<div class="font-bold text-gray-600">Input Vectors: V1 = $\langle${format(v1_x)}, ${format(v1_y)}\rangle$, V2 = $\langle${format(v2_x)}, ${format(v2_y)}\rangle$</div>`;
-
-            workingDiv.innerHTML += `<div class="working-step">Addition (V1 + V2): <br> $\langle${format(v1_x)} + ${format(v2_x)}, ${format(v1_y)} + ${format(v2_y)}\rangle$ = $\langle${format(V_add[0])}, ${format(V_add[1])}\rangle$</div>`;
-            workingDiv.innerHTML += `<div class="working-step">Subtraction (V1 - V2): <br> $\langle${format(v1_x)} - ${format(v2_x)}, ${format(v1_y)} - ${format(v2_y)}\rangle$ = $\langle${format(V_sub[0])}, ${format(V_sub[1])}\rangle$</div>`;
-            workingDiv.innerHTML += `<div class="working-step">Dot Product (V1 $\cdot$ V2): <br> (${format(v1_x)} $\times$ ${format(v2_x)}) + (${format(v1_y)} $\times$ ${format(v2_y)}) = ${format(dot_product)}</div>`;
-            workingDiv.innerHTML += `<div class="working-step">Magnitude of V1 ($\|V_1\|$): <br> $\sqrt{${format(v1_x)}^2 + ${format(v1_y)}^2} = ${format(mag_v1)}$</div>`;
-
-            // 3. Result Output
-            const resultDiv = document.getElementById('vo_result');
-            resultDiv.className = 'p-3 bg-indigo-500 text-white rounded-lg font-bold';
-            resultDiv.innerHTML = `V1 + V2 = $\langle${format(V_add[0])}, ${format(V_add[1])}\rangle$ | V1 $\cdot$ V2 = ${format(dot_product)}`;
-
-            // 4. Graphing
-            drawVectors(V1, V2, V_add);
+            container.innerHTML = html;
         }
 
-        // --- Canvas Drawing Function (unchanged) ---
+        // --- Core Functions for Vector Operations (N-D) ---
+        function calculateVectorOperations() {
+            const size = parseInt(document.getElementById('vo_size_selector').value);
+            const variables = ['x', 'y', 'z', 'w'];
+            const resultDiv = document.getElementById('vo_result');
+            const workingDiv = document.getElementById('vo_working');
+            let V1 = [];
+            let V2 = [];
+
+            // 1. Collect inputs
+            for (let i = 0; i < size; i++) {
+                V1.push(getFloatValue(`v1_${variables[i]}`));
+                V2.push(getFloatValue(`v2_${variables[i]}`));
+            }
+
+            // 2. Calculations (N-D)
+            let V_add = V1.map((v, i) => v + V2[i]);
+            let V_sub = V1.map((v, i) => v - V2[i]);
+            let dot_product = V1.reduce((sum, v, i) => sum + v * V2[i], 0);
+            let mag_v1 = Math.sqrt(V1.reduce((sum, v) => sum + v * v, 0));
+
+            // Helper to format a vector for display
+            const formatVector = (V) => {
+                return `&lt;${V.map(format).join(', ')}&gt;`;
+            };
+
+            // 3. Working Output
+            workingDiv.innerHTML = `<div class="font-bold text-gray-600">Input Vectors: V1 = ${formatVector(V1)}, V2 = ${formatVector(V2)}</div>`;
+
+            workingDiv.innerHTML += `<div class="working-step">Addition (V1 + V2): <br> ${formatVector(V1)} + ${formatVector(V2)} = ${formatVector(V_add)}</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Subtraction (V1 - V2): <br> ${formatVector(V1)} - ${formatVector(V2)} = ${formatVector(V_sub)}</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Dot Product (V1 &middot; V2): <br> Calculation: ${V1.map((v, i) => `(${format(v)} &times; ${format(V2[i])})`).join(' + ')} = ${format(dot_product)}</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Magnitude of V1 ($\|V_1\|$): <br> $\sqrt{${V1.map(v => `${format(v)}^2`).join(' + ')}} = ${format(mag_v1)}$</div>`;
+
+            // 4. Result Output
+            resultDiv.className = 'p-3 bg-indigo-500 text-white rounded-lg text-xl font-bold';
+            resultDiv.innerHTML = `V1 + V2 = ${formatVector(V_add)} | V1 &middot; V2 = ${format(dot_product)}`;
+
+            // 5. Graphing (Only if 2D)
+            const canvas = document.getElementById('vectorCanvas');
+            if (size === 2) {
+                canvas.style.display = 'block';
+                // Pass only the first two elements for 2D plotting
+                drawVectors([V1[0], V1[1]], [V2[0], V2[1]], [V_add[0], V_add[1]]);
+            } else {
+                canvas.style.display = 'none';
+                workingDiv.innerHTML += '<div class="working-step text-yellow-700">Plotting is only supported for 2D vectors.</div>';
+            }
+        }
+
+        // --- Canvas Drawing Function (updated labels) ---
         function drawVectors(V1, V2, V_result) {
             const canvas = document.getElementById('vectorCanvas');
             const ctx = canvas.getContext('2d');
@@ -561,10 +601,10 @@
                 ctx.fillText(label, endX + 5, endY - 5);
             }
 
-            // Draw vectors
-            drawArrow(V1, '#3b82f6', `V1 $\langle${format(V1[0])}, ${format(V1[1])}\rangle$`); // Blue
-            drawArrow(V2, '#ef4444', `V2 $\langle${format(V2[0])}, ${format(V2[1])}\rangle$`); // Red
-            drawArrow(V_result, '#10b981', `V1 + V2 $\langle${format(V_result[0])}, ${format(V_result[1])}\rangle$`); // Green
+            // Draw vectors (Labels updated to use HTML entities)
+            drawArrow(V1, '#3b82f6', `V1 <${format(V1[0])}, ${format(V1[1])}>`); // Blue
+            drawArrow(V2, '#ef4444', `V2 <${format(V2[0])}, ${format(V2[1])}>`); // Red
+            drawArrow(V_result, '#10b981', `V1 + V2 <${format(V_result[0])}, ${format(V_result[1])}>`); // Green
 
             // Draw the Parallelogram for V_add (optional, but shows visual addition)
             ctx.strokeStyle = '#10b98180';
@@ -588,9 +628,10 @@
 
         // Initialize the canvas with a grid when the window loads
         window.onload = function() {
-            // Initialize 2x2 inputs for both sections
+            // Initialize 2x2 inputs for all three sections
             renderMatrixInputs('ge', 2);
             renderMatrixInputs('cr', 2);
+            renderVectorInputs(2);
             // Draw an empty vector grid on load
             drawVectors([0, 0], [0, 0], [0, 0]);
         };
