@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2x2 Linear Algebra Calculator</title>
+    <title>N x N Linear Algebra Calculator</title>
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -17,10 +17,11 @@
             margin: 0;
         }
         .matrix-input {
-            width: 50px;
-            height: 50px;
+            width: 40px; /* Reduced size for 3x3/4x4 layout */
+            height: 40px;
             text-align: center;
-            font-size: 1.25rem;
+            font-size: 1rem;
+            padding: 0.25rem;
         }
         .working-step {
             margin-bottom: 0.5rem;
@@ -38,15 +39,16 @@
             border-right: 2px solid black;
             padding: 0 8px;
             margin: 0 4px;
-            font-size: 1.25rem;
+            font-size: 1rem;
+            line-height: 1.25;
         }
         .matrix-row {
             display: flex;
-            gap: 12px;
+            gap: 8px; /* Reduced gap */
         }
         .matrix-aug {
             border-left: 2px solid black;
-            padding-left: 12px;
+            padding-left: 8px;
         }
         #vectorCanvas {
             /* Make canvas responsive within its container */
@@ -59,37 +61,33 @@
 
     <div class="max-w-7xl mx-auto">
         <header class="text-center py-6 mb-8 bg-white shadow-lg rounded-xl">
-            <h1 class="text-3xl md:text-5xl font-extrabold text-indigo-700">Linear Algebra Toolkit (2x2)</h1>
-            <p class="text-gray-500 mt-2">Gaussian Elimination, Cramer's Rule, and Vector Operations</p>
+            <h1 class="text-3xl md:text-5xl font-extrabold text-indigo-700">Linear Algebra Toolkit (N x N)</h1>
+            <p class="text-gray-500 mt-2">Gaussian Elimination, Cramer's Rule, and Vector Operations (2D)</p>
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
             <!-- Gaussian Elimination -->
             <div id="gaussian-elimination" class="bg-white p-6 shadow-xl rounded-xl border border-indigo-100">
-                <h2 class="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">1. Gaussian Elimination (2x2)</h2>
-                <p class="text-sm text-gray-500 mb-4">Enter coefficients for $A_1 x + B_1 y = C_1$</p>
-                <div class="space-y-4">
-                    <div class="flex flex-col space-y-4">
-                        <!-- Row 1 Input: A1x + B1y = C1 -->
-                        <div class="flex items-center space-x-2">
-                            <input type="number" id="ge_a11" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="A1">
-                            <span class="text-xl">x +</span>
-                            <input type="number" id="ge_a12" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="B1">
-                            <span class="text-xl">y =</span>
-                            <input type="number" id="ge_b1" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="C1">
-                        </div>
-                        <!-- Row 2 Input: A2x + B2y = C2 -->
-                        <div class="flex items-center space-x-2">
-                            <input type="number" id="ge_a21" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="A2">
-                            <span class="text-xl">x +</span>
-                            <input type="number" id="ge_a22" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="B2">
-                            <span class="text-xl">y =</span>
-                            <input type="number" id="ge_b2" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="C2">
-                        </div>
-                    </div>
-                    <button onclick="calculateGaussianElimination()" class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-150 shadow-md">Solve</button>
+                <h2 class="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">1. Gaussian Elimination</h2>
+
+                <div class="mb-4 flex items-center justify-between">
+                    <label for="ge_size_selector" class="text-sm font-medium text-gray-700">Matrix Size (N x N):</label>
+                    <select id="ge_size_selector" onchange="renderMatrixInputs('ge', this.value)" class="p-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="2">2x2</option>
+                        <option value="3">3x3</option>
+                        <option value="4">4x4</option>
+                    </select>
                 </div>
+
+                <p class="text-sm text-gray-500 mb-4" id="ge_equation_info">Enter coefficients for $A_1 x + B_1 y = C_1$</p>
+
+                <div class="space-y-4" id="ge_input_container">
+                    <!-- Inputs rendered here by JS -->
+                </div>
+
+                <button onclick="calculateGaussianElimination()" class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-150 shadow-md mt-4">Solve</button>
+
                 <h3 class="text-xl font-semibold mt-6 mb-3 text-indigo-700">Result</h3>
                 <div id="ge_result" class="p-3 bg-indigo-50 rounded-lg text-gray-800 font-bold">Enter values and click Solve.</div>
                 <h3 class="text-xl font-semibold mt-6 mb-3 text-indigo-700">Working</h3>
@@ -98,29 +96,25 @@
 
             <!-- Cramer's Rule -->
             <div id="cramers-rule" class="bg-white p-6 shadow-xl rounded-xl border border-indigo-100">
-                <h2 class="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">2. Cramer's Rule (2x2)</h2>
-                <p class="text-sm text-gray-500 mb-4">Enter coefficients for $A_1 x + B_1 y = C_1$</p>
-                <div class="space-y-4">
-                    <div class="flex flex-col space-y-4">
-                        <!-- Row 1 Input: A1x + B1y = C1 -->
-                        <div class="flex items-center space-x-2">
-                            <input type="number" id="cr_a11" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="A1">
-                            <span class="text-xl">x +</span>
-                            <input type="number" id="cr_a12" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="B1">
-                            <span class="text-xl">y =</span>
-                            <input type="number" id="cr_b1" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="C1">
-                        </div>
-                        <!-- Row 2 Input: A2x + B2y = C2 -->
-                        <div class="flex items-center space-x-2">
-                            <input type="number" id="cr_a21" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="A2">
-                            <span class="text-xl">x +</span>
-                            <input type="number" id="cr_a22" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="B2">
-                            <span class="text-xl">y =</span>
-                            <input type="number" id="cr_b2" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="C2">
-                        </div>
-                    </div>
-                    <button onclick="calculateCramersRule()" class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-150 shadow-md">Solve</button>
+                <h2 class="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">2. Cramer's Rule</h2>
+
+                <div class="mb-4 flex items-center justify-between">
+                    <label for="cr_size_selector" class="text-sm font-medium text-gray-700">Matrix Size (N x N):</label>
+                    <select id="cr_size_selector" onchange="renderMatrixInputs('cr', this.value)" class="p-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="2">2x2</option>
+                        <option value="3">3x3</option>
+                        <option value="4">4x4</option>
+                    </select>
                 </div>
+
+                <p class="text-sm text-gray-500 mb-4" id="cr_equation_info">Enter coefficients for $A_1 x + B_1 y = C_1$</p>
+
+                <div class="space-y-4" id="cr_input_container">
+                    <!-- Inputs rendered here by JS -->
+                </div>
+
+                <button onclick="calculateCramersRule()" class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-150 shadow-md mt-4">Solve</button>
+
                 <h3 class="text-xl font-semibold mt-6 mb-3 text-indigo-700">Result</h3>
                 <div id="cr_result" class="p-3 bg-indigo-50 rounded-lg text-gray-800 font-bold">Enter values and click Solve.</div>
                 <h3 class="text-xl font-semibold mt-6 mb-3 text-indigo-700">Working</h3>
@@ -131,21 +125,21 @@
             <div id="vector-operations" class="bg-white p-6 shadow-xl rounded-xl border border-indigo-100">
                 <h2 class="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">3. Vector Operations (2D)</h2>
                 <div class="space-y-4">
-                    <!-- Vector 1 Input -->
+                    <!-- Vector 1 Input: <x1, y1> -->
                     <div class="flex items-center space-x-2">
-                        <span class="text-xl font-semibold">V1: (</span>
+                        <span class="text-xl font-semibold">V1: $\langle$</span>
                         <input type="number" id="v1_x" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="x1">
                         <span class="text-xl">,</span>
                         <input type="number" id="v1_y" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="y1">
-                        <span class="text-xl">)</span>
+                        <span class="text-xl">$\rangle$</span>
                     </div>
-                    <!-- Vector 2 Input -->
+                    <!-- Vector 2 Input: <x2, y2> -->
                     <div class="flex items-center space-x-2">
-                        <span class="text-xl font-semibold">V2: (</span>
+                        <span class="text-xl font-semibold">V2: $\langle$</span>
                         <input type="number" id="v2_x" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="x2">
                         <span class="text-xl">,</span>
                         <input type="number" id="v2_y" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="y2">
-                        <span class="text-xl">)</span>
+                        <span class="text-xl">$\rangle$</span>
                     </div>
                     <button onclick="calculateVectorOperations()" class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-150 shadow-md">Calculate & Plot</button>
                 </div>
@@ -169,143 +163,240 @@
 
         // Utility to format number to 2 decimal places
         function format(num) {
+            // Handle scientific notation for very small numbers
+            if (Math.abs(num) < 0.000001 && num !== 0) {
+                return num.toExponential(2);
+            }
             if (Math.abs(num - Math.round(num)) < 0.000001) {
                 return num.toFixed(0); // If effectively integer, show no decimals
             }
             return num.toFixed(2);
         }
 
-        // --- Core Functions for Gaussian Elimination ---
-        function calculateGaussianElimination() {
-            const a11 = getFloatValue('ge_a11');
-            const a12 = getFloatValue('ge_a12');
-            const b1 = getFloatValue('ge_b1');
-            const a21 = getFloatValue('ge_a21');
-            const a22 = getFloatValue('ge_a22');
-            const b2 = getFloatValue('ge_b2');
+        // --- Dynamic Input Rendering ---
+        function renderMatrixInputs(idPrefix, size) {
+            size = parseInt(size);
+            const container = document.getElementById(`${idPrefix}_input_container`);
+            const info = document.getElementById(`${idPrefix}_equation_info`);
+            let html = '';
 
-            const resultDiv = document.getElementById('ge_result');
-            const workingDiv = document.getElementById('ge_working');
-            workingDiv.innerHTML = `<div class="font-bold text-gray-600">Starting System:</div>`;
+            const variables = ['x', 'y', 'z', 'w'];
+            const labels = ['A', 'B', 'C', 'D']; // Coefficients
+            const constants = ['C', 'D', 'E', 'F']; // Constants on the right
 
-            // Display initial augmented matrix
-            const initialMatrix = [
-                [a11, a12, b1],
-                [a21, a22, b2]
-            ];
-            workingDiv.innerHTML += formatMatrix(initialMatrix) + '<br>';
-
-            // 1. Check for singular matrix (determinant is zero)
-            const det = a11 * a22 - a12 * a21;
-            if (Math.abs(det) < 0.000001) {
-                resultDiv.className = 'p-3 bg-red-100 rounded-lg text-red-800 font-bold';
-                resultDiv.innerHTML = 'System has NO UNIQUE solution (Determinant is zero).';
-                workingDiv.innerHTML += '<div class="working-step text-red-700">Determinant = 0. No unique solution exists (infinite solutions or no solution).</div>';
-                return;
+            let equationText = `Enter coefficients for `;
+            for(let j = 0; j < size; j++) {
+                equationText += `${labels[j]}_1 ${variables[j]}`;
+                if (j < size - 1) equationText += ' + ';
             }
+            equationText += ` = ${constants[0]}_1`;
+            info.innerHTML = equationText;
 
-            let M = [
-                [a11, a12, b1],
-                [a21, a22, b2]
-            ];
+            for (let i = 1; i <= size; i++) {
+                html += `<div class="flex items-center space-x-2">`;
+                for (let j = 1; j <= size; j++) {
+                    const varChar = variables[j - 1] ? `${variables[j-1]}` : '';
+                    const connector = (j < size) ? ' + ' : '';
 
-            // 2. Normalize R1 (if a11 != 1)
-            if (a11 !== 1 && Math.abs(a11) > 0.000001) {
-                const factor = a11;
-                M[0][0] /= factor;
-                M[0][1] /= factor;
-                M[0][2] /= factor;
-                workingDiv.innerHTML += `<div class="working-step">Step 1: Normalize R1 (R1 = R1 / ${format(factor)}):</div>`;
-                workingDiv.innerHTML += formatMatrix(M) + '<br>';
+                    html += `
+                        <input type="number" id="${idPrefix}_a${i}${j}" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="${labels[j-1]}${i}">
+                        <span class="text-sm">${varChar}${connector}</span>
+                    `;
+                }
+                // Constant term
+                html += `
+                    <span class="text-xl">=</span>
+                    <input type="number" id="${idPrefix}_b${i}" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="${constants[0]}${i}">
+                `;
+                html += `</div>`;
             }
-
-            // Recalculate factor in case of division by zero (already caught by det check, but good practice)
-            if (Math.abs(M[0][0]) < 0.000001) {
-                // If the first element is zero after swapping, it means the system is singular.
-                // Since det check is done, this should only happen if inputs are all zeros, but let's keep it simple.
-                return;
-            }
-
-            // 3. Eliminate R2, first element (Get a21 to 0)
-            const factor21 = M[1][0] / M[0][0];
-            M[1][0] = M[1][0] - factor21 * M[0][0]; // Should be 0
-            M[1][1] = M[1][1] - factor21 * M[0][1];
-            M[1][2] = M[1][2] - factor21 * M[0][2];
-
-            workingDiv.innerHTML += `<div class="working-step">Step 2: Eliminate x from R2 (R2 = R2 - ${format(factor21)} * R1):</div>`;
-            workingDiv.innerHTML += formatMatrix(M) + '<br>';
-
-            // 4. Back-Substitution: Solve for y
-            const new_a22 = M[1][1];
-            const new_b2 = M[1][2];
-
-            const y = new_b2 / new_a22;
-            workingDiv.innerHTML += `<div class="working-step">Step 3: Solve for y from R2: <br> ${format(new_a22)}y = ${format(new_b2)} <br> y = ${format(new_b2)} / ${format(new_a22)} = ${format(y)}</div>`;
-
-            // 5. Back-Substitution: Solve for x
-            const old_a12 = M[0][1];
-            const old_b1 = M[0][2];
-            const x = (old_b1 - old_a12 * y) / M[0][0];
-
-            workingDiv.innerHTML += `<div class="working-step">Step 4: Substitute y back into R1 ($M_{11}x + M_{12}y = M_{13}$): <br> ${format(M[0][0])}x + ${format(old_a12)}(${format(y)}) = ${format(old_b1)} <br> ${format(M[0][0])}x = ${format(old_b1)} - ${format(old_a12 * y)} <br> x = ${format(x)}</div>`;
-
-            // Final Result
-            resultDiv.className = 'p-3 bg-indigo-500 text-white rounded-lg text-xl font-bold';
-            resultDiv.innerHTML = `Solution: x = ${format(x)}, y = ${format(y)}`;
+            container.innerHTML = html;
         }
 
-        // Helper to format a 2x3 augmented matrix for display
+        // Helper to format a N x (N+1) augmented matrix for display
         function formatMatrix(matrix) {
-            const displayMatrix = matrix.map(row =>
-                `<div class="matrix-row">${row.slice(0, 2).map(val => `<span>${format(val)}</span>`).join('')}<span class="matrix-aug">${format(row[2])}</span></div>`
-            ).join('');
+            const displayMatrix = matrix.map(row => {
+                const coefficients = row.slice(0, -1).map(val => `<span>${format(val)}</span>`).join('');
+                const constant = row[row.length - 1];
+                return `<div class="matrix-row">${coefficients}<span class="matrix-aug">${format(constant)}</span></div>`;
+            }).join('');
 
             return `<div class="matrix-display">${displayMatrix}</div>`;
         }
 
+        // --- Determinant Calculation (Recursive Cofactor Expansion) ---
+        function getDeterminant(A) {
+            const n = A.length;
 
-        // --- Core Functions for Cramer's Rule ---
-        function calculateCramersRule() {
-            const a11 = getFloatValue('cr_a11');
-            const a12 = getFloatValue('cr_a12');
-            const b1 = getFloatValue('cr_b1');
-            const a21 = getFloatValue('cr_a21');
-            const a22 = getFloatValue('cr_a22');
-            const b2 = getFloatValue('cr_b2');
+            if (n === 1) return A[0][0];
+            if (n === 2) return A[0][0] * A[1][1] - A[0][1] * A[1][0];
 
-            const resultDiv = document.getElementById('cr_result');
-            const workingDiv = document.getElementById('cr_working');
-            workingDiv.innerHTML = `<div class="font-bold text-gray-600">System of Equations:</div>`;
-            workingDiv.innerHTML += `<div class="working-step">${format(a11)}x + ${format(a12)}y = ${format(b1)} <br> ${format(a21)}x + ${format(a22)}y = ${format(b2)}</div>`;
+            let det = 0;
+            // Cofactor expansion along the first row
+            for (let j = 0; j < n; j++) {
+                // Create the minor matrix (A_ij)
+                const minor = [];
+                for (let r = 1; r < n; r++) { // Start from the second row
+                    const minorRow = [];
+                    for (let c = 0; c < n; c++) {
+                        if (c !== j) {
+                            minorRow.push(A[r][c]);
+                        }
+                    }
+                    minor.push(minorRow);
+                }
 
-            // 1. Calculate Determinant D
-            const D = a11 * a22 - a12 * a21;
-            workingDiv.innerHTML += `<div class="working-step">Step 1: Calculate Determinant D (Coefficient Matrix): <br> D = (${format(a11)} * ${format(a22)}) - (${format(a12)} * ${format(a21)}) <br> D = ${format(a11 * a22)} - ${format(a12 * a21)} = ${format(D)}</div>`;
+                // Calculate cofactor sign: (-1)^(i+j). Since i=0 (first row), sign is (-1)^j.
+                const sign = (j % 2 === 0) ? 1 : -1;
 
-            if (Math.abs(D) < 0.000001) {
+                det += sign * A[0][j] * getDeterminant(minor);
+            }
+            return det;
+        }
+
+
+        // --- Gaussian Elimination Core Logic ---
+        function calculateGaussianElimination() {
+            const size = parseInt(document.getElementById('ge_size_selector').value);
+            const resultDiv = document.getElementById('ge_result');
+            const workingDiv = document.getElementById('ge_working');
+            workingDiv.innerHTML = `<div class="font-bold text-gray-600">Starting System (Size: ${size}x${size}):</div>`;
+            const variables = ['x', 'y', 'z', 'w'];
+
+            // 1. Collect inputs into an augmented matrix M
+            let M = [];
+            for (let i = 1; i <= size; i++) {
+                let row = [];
+                for (let j = 1; j <= size; j++) {
+                    row.push(getFloatValue(`ge_a${i}${j}`));
+                }
+                row.push(getFloatValue(`ge_b${i}`)); // Constant term
+                M.push(row);
+            }
+
+            workingDiv.innerHTML += formatMatrix(M) + '<br>';
+
+            // Check singularity using determinant (less prone to floating point errors than the elimination step for this check)
+            const det = getDeterminant(M.map(row => row.slice(0, size)));
+            if (Math.abs(det) < 0.000001) {
                 resultDiv.className = 'p-3 bg-red-100 rounded-lg text-red-800 font-bold';
-                resultDiv.innerHTML = 'System has NO UNIQUE solution (Determinant D is zero).';
-                workingDiv.innerHTML += '<div class="working-step text-red-700">Since D = 0, no unique solution exists (infinite solutions or no solution).</div>';
+                resultDiv.innerHTML = 'System has NO UNIQUE solution (Determinant is zero).';
+                workingDiv.innerHTML += '<div class="working-step text-red-700">Determinant $\\Delta = 0$. No unique solution exists (infinite solutions or no solution).</div>';
                 return;
             }
 
-            // 2. Calculate Determinant Dx
-            const Dx = b1 * a22 - a12 * b2;
-            workingDiv.innerHTML += `<div class="working-step">Step 2: Calculate Determinant Dₓ (Replace x-column with C): <br> Dₓ = (${format(b1)} * ${format(a22)}) - (${format(a12)} * ${format(b2)}) <br> Dₓ = ${format(b1 * a22)} - ${format(a12 * b2)} = ${format(Dx)}</div>`;
+            // 2. Forward Elimination
+            for (let i = 0; i < size; i++) { // Pivot row (i)
+                const pivot = M[i][i];
+                if (Math.abs(pivot) < 0.000001) {
+                    // This case *shouldn't* happen if the determinant is non-zero, but in general Gaussian elimination, 
+                    // row swapping would occur here. We rely on the determinant check above for simplicity.
+                    workingDiv.innerHTML += `<div class="working-step text-red-700">Warning: Attempted row operation with a near-zero pivot. The system might be ill-conditioned.</div>`;
+                    continue;
+                }
 
-            // 3. Calculate Determinant Dy
-            const Dy = a11 * b2 - b1 * a21;
-            workingDiv.innerHTML += `<div class="working-step">Step 3: Calculate Determinant Dᵧ (Replace y-column with C): <br> Dᵧ = (${format(a11)} * ${format(b2)}) - (${format(b1)} * ${format(a21)}) <br> Dᵧ = ${format(a11 * b2)} - ${format(b1 * a21)} = ${format(Dy)}</div>`;
+                // Eliminate below pivot
+                for (let k = i + 1; k < size; k++) { // Target row (k)
+                    const factor = M[k][i] / pivot;
+                    workingDiv.innerHTML += `<div class="working-step">Step: R${k+1} = R${k+1} - (${format(factor)} $\\times$ R${i+1}) to eliminate ${variables[i]} from R${k+1}.</div>`;
 
-            // 4. Calculate x and y
-            const x = Dx / D;
-            const y = Dy / D;
+                    for (let j = i; j <= size; j++) { // Column index (j)
+                        M[k][j] = M[k][j] - factor * M[i][j];
+                        // Correct for floating point inaccuracies
+                        if (Math.abs(M[k][j]) < 0.000001) M[k][j] = 0;
+                    }
+                }
+                workingDiv.innerHTML += formatMatrix(M) + '<br>';
+            }
 
-            workingDiv.innerHTML += `<div class="working-step">Step 4: Solve for x and y: <br> x = Dₓ / D = ${format(Dx)} / ${format(D)} = ${format(x)} <br> y = Dᵧ / D = ${format(Dy)} / ${format(D)} = ${format(y)}</div>`;
+            // 3. Back-Substitution
+            let solution = new Array(size).fill(0);
+            workingDiv.innerHTML += `<div class="font-bold text-gray-600">Back Substitution (Solving from bottom up):</div>`;
+
+            for (let i = size - 1; i >= 0; i--) {
+                let sum = 0;
+                for (let j = i + 1; j < size; j++) {
+                    sum += M[i][j] * solution[j];
+                }
+                solution[i] = (M[i][size] - sum) / M[i][i];
+                workingDiv.innerHTML += `<div class="working-step">Solve for ${variables[i]}: <br> $${variables[i]} = (${format(M[i][size])} - ${format(sum)}) / ${format(M[i][i])} = ${format(solution[i])}$</div>`;
+            }
+
+            // Final Result
+            const finalResult = solution.map((val, index) => `${variables[index]} = ${format(val)}`).join(', ');
+            resultDiv.className = 'p-3 bg-indigo-500 text-white rounded-lg text-xl font-bold';
+            resultDiv.innerHTML = `Solution: ${finalResult}`;
+        }
+
+
+        // --- Cramer's Rule Core Logic ---
+        function calculateCramersRule() {
+            const size = parseInt(document.getElementById('cr_size_selector').value);
+            const resultDiv = document.getElementById('cr_result');
+            const workingDiv = document.getElementById('cr_working');
+            workingDiv.innerHTML = `<div class="font-bold text-gray-600">System of Equations (Size: ${size}x${size}):</div>`;
+            const variables = ['x', 'y', 'z', 'w'];
+
+            // 1. Collect inputs
+            let A = []; // Coefficient matrix
+            let B = []; // Constant vector
+            for (let i = 1; i <= size; i++) {
+                let row = [];
+                for (let j = 1; j <= size; j++) {
+                    row.push(getFloatValue(`cr_a${i}${j}`));
+                }
+                A.push(row);
+                B.push(getFloatValue(`cr_b${i}`));
+            }
+
+            // Display initial equations
+            let equationHtml = '';
+            for (let i = 0; i < size; i++) {
+                let rowEq = '';
+                for (let j = 0; j < size; j++) {
+                    rowEq += `${format(A[i][j])}${variables[j]}`;
+                    if (j < size - 1) rowEq += ' + ';
+                }
+                equationHtml += `${rowEq} = ${format(B[i])} <br>`;
+            }
+            workingDiv.innerHTML += `<div class="working-step">${equationHtml}</div>`;
+
+            // 2. Calculate Determinant D
+            const D = getDeterminant(A);
+
+            workingDiv.innerHTML += `<div class="working-step">Step 1: Calculate Determinant $D$ (Coefficient Matrix). $D = ${format(D)}$</div>`;
+
+            if (Math.abs(D) < 0.000001) {
+                resultDiv.className = 'p-3 bg-red-100 rounded-lg text-red-800 font-bold';
+                resultDiv.innerHTML = 'System has NO UNIQUE solution (Determinant $D$ is zero).';
+                workingDiv.innerHTML += '<div class="working-step text-red-700">Since $D \approx 0$, no unique solution exists (infinite solutions or no solution).</div>';
+                return;
+            }
+
+            // 3. Calculate Dx, Dy, Dz... and solutions
+            let solutions = [];
+            let resultDisplay = '';
+
+            for (let i = 0; i < size; i++) {
+                // Create temporary matrix A_i by substituting B into column i
+                let A_i = A.map(row => [...row]); // Deep copy
+                for (let r = 0; r < size; r++) {
+                    A_i[r][i] = B[r];
+                }
+
+                const D_i = getDeterminant(A_i);
+                const val = D_i / D;
+                solutions.push(val);
+
+                workingDiv.innerHTML += `<div class="working-step">Step ${i + 2}: Calculate Determinant $D_{${variables[i]}}$ (by substituting B into column ${i+1}). <br> $D_{${variables[i]}} = ${format(D_i)}$ <br> ${variables[i]} = $D_{${variables[i]}} / D = ${format(D_i)} / ${format(D)} = ${format(val)} $</div>`;
+
+                resultDisplay += `${variables[i]} = ${format(val)}`;
+                if (i < size - 1) resultDisplay += ', ';
+            }
 
             // Final Result
             resultDiv.className = 'p-3 bg-indigo-500 text-white rounded-lg text-xl font-bold';
-            resultDiv.innerHTML = `Solution: x = ${format(x)}, y = ${format(y)}`;
+            resultDiv.innerHTML = `Solution: ${resultDisplay}`;
         }
 
 
@@ -327,23 +418,23 @@
 
             // 2. Working Output
             const workingDiv = document.getElementById('vo_working');
-            workingDiv.innerHTML = `<div class="font-bold text-gray-600">Input Vectors: V1 = (${format(v1_x)}, ${format(v1_y)}), V2 = (${format(v2_x)}, ${format(v2_y)})</div>`;
+            workingDiv.innerHTML = `<div class="font-bold text-gray-600">Input Vectors: V1 = $\langle${format(v1_x)}, ${format(v1_y)}\rangle$, V2 = $\langle${format(v2_x)}, ${format(v2_y)}\rangle$</div>`;
 
-            workingDiv.innerHTML += `<div class="working-step">Addition (V1 + V2): <br> (${format(v1_x)} + ${format(v2_x)}, ${format(v1_y)} + ${format(v2_y)}) = (${format(V_add[0])}, ${format(V_add[1])})</div>`;
-            workingDiv.innerHTML += `<div class="working-step">Subtraction (V1 - V2): <br> (${format(v1_x)} - ${format(v2_x)}, ${format(v1_y)} - ${format(v2_y)}) = (${format(V_sub[0])}, ${format(V_sub[1])})</div>`;
-            workingDiv.innerHTML += `<div class="working-step">Dot Product (V1 • V2): <br> (${format(v1_x)}*${format(v2_x)}) + (${format(v1_y)}*${format(v2_y)}) = ${format(dot_product)}</div>`;
-            workingDiv.innerHTML += `<div class="working-step">Magnitude of V1 (|V1|): <br> √(${format(v1_x)}² + ${format(v1_y)}²) = ${format(mag_v1)}</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Addition (V1 + V2): <br> $\langle${format(v1_x)} + ${format(v2_x)}, ${format(v1_y)} + ${format(v2_y)}\rangle$ = $\langle${format(V_add[0])}, ${format(V_add[1])}\rangle$</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Subtraction (V1 - V2): <br> $\langle${format(v1_x)} - ${format(v2_x)}, ${format(v1_y)} - ${format(v2_y)}\rangle$ = $\langle${format(V_sub[0])}, ${format(V_sub[1])}\rangle$</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Dot Product (V1 $\cdot$ V2): <br> (${format(v1_x)} $\times$ ${format(v2_x)}) + (${format(v1_y)} $\times$ ${format(v2_y)}) = ${format(dot_product)}</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Magnitude of V1 ($\|V_1\|$): <br> $\sqrt{${format(v1_x)}^2 + ${format(v1_y)}^2} = ${format(mag_v1)}$</div>`;
 
             // 3. Result Output
             const resultDiv = document.getElementById('vo_result');
             resultDiv.className = 'p-3 bg-indigo-500 text-white rounded-lg font-bold';
-            resultDiv.innerHTML = `V1 + V2 = (${format(V_add[0])}, ${format(V_add[1])}) | V1 • V2 = ${format(dot_product)}`;
+            resultDiv.innerHTML = `V1 + V2 = $\langle${format(V_add[0])}, ${format(V_add[1])}\rangle$ | V1 $\cdot$ V2 = ${format(dot_product)}`;
 
             // 4. Graphing
             drawVectors(V1, V2, V_add);
         }
 
-        // --- Canvas Drawing Function ---
+        // --- Canvas Drawing Function (unchanged) ---
         function drawVectors(V1, V2, V_result) {
             const canvas = document.getElementById('vectorCanvas');
             const ctx = canvas.getContext('2d');
@@ -361,7 +452,7 @@
             );
             // Calculate dynamic scale, ensuring it doesn't try to divide by zero or scale too aggressively
             const dynamicScale = Math.max(1, Math.floor(Math.min(centerX / maxVal, centerY / maxVal)) - 2);
-            
+
             // Interval for labels, ensure we don't label too frequently
             const labelInterval = Math.max(1, Math.ceil(maxVal / 5));
 
@@ -471,9 +562,9 @@
             }
 
             // Draw vectors
-            drawArrow(V1, '#3b82f6', `V1 (${format(V1[0])}, ${format(V1[1])})`); // Blue
-            drawArrow(V2, '#ef4444', `V2 (${format(V2[0])}, ${format(V2[1])})`); // Red
-            drawArrow(V_result, '#10b981', `V1 + V2 (${format(V_result[0])}, ${format(V_result[1])})`); // Green
+            drawArrow(V1, '#3b82f6', `V1 $\langle${format(V1[0])}, ${format(V1[1])}\rangle$`); // Blue
+            drawArrow(V2, '#ef4444', `V2 $\langle${format(V2[0])}, ${format(V2[1])}\rangle$`); // Red
+            drawArrow(V_result, '#10b981', `V1 + V2 $\langle${format(V_result[0])}, ${format(V_result[1])}\rangle$`); // Green
 
             // Draw the Parallelogram for V_add (optional, but shows visual addition)
             ctx.strokeStyle = '#10b98180';
@@ -497,7 +588,10 @@
 
         // Initialize the canvas with a grid when the window loads
         window.onload = function() {
-            // Draw an empty grid on load
+            // Initialize 2x2 inputs for both sections
+            renderMatrixInputs('ge', 2);
+            renderMatrixInputs('cr', 2);
+            // Draw an empty vector grid on load
             drawVectors([0, 0], [0, 0], [0, 0]);
         };
 
