@@ -48,6 +48,11 @@
             border-left: 2px solid black;
             padding-left: 12px;
         }
+        #vectorCanvas {
+            /* Make canvas responsive within its container */
+            max-width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 md:p-8 font-sans">
@@ -63,23 +68,24 @@
             <!-- Gaussian Elimination -->
             <div id="gaussian-elimination" class="bg-white p-6 shadow-xl rounded-xl border border-indigo-100">
                 <h2 class="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">1. Gaussian Elimination (2x2)</h2>
+                <p class="text-sm text-gray-500 mb-4">Enter coefficients for $A_1 x + B_1 y = C_1$</p>
                 <div class="space-y-4">
                     <div class="flex flex-col space-y-4">
-                        <!-- Row 1 Input -->
+                        <!-- Row 1 Input: A1x + B1y = C1 -->
                         <div class="flex items-center space-x-2">
-                            <input type="number" id="ge_a11" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="a11">
+                            <input type="number" id="ge_a11" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="A1">
                             <span class="text-xl">x +</span>
-                            <input type="number" id="ge_a12" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="a12">
+                            <input type="number" id="ge_a12" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="B1">
                             <span class="text-xl">y =</span>
-                            <input type="number" id="ge_b1" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="b1">
+                            <input type="number" id="ge_b1" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="C1">
                         </div>
-                        <!-- Row 2 Input -->
+                        <!-- Row 2 Input: A2x + B2y = C2 -->
                         <div class="flex items-center space-x-2">
-                            <input type="number" id="ge_a21" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="a21">
+                            <input type="number" id="ge_a21" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="A2">
                             <span class="text-xl">x +</span>
-                            <input type="number" id="ge_a22" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="a22">
+                            <input type="number" id="ge_a22" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="B2">
                             <span class="text-xl">y =</span>
-                            <input type="number" id="ge_b2" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="b2">
+                            <input type="number" id="ge_b2" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="C2">
                         </div>
                     </div>
                     <button onclick="calculateGaussianElimination()" class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-150 shadow-md">Solve</button>
@@ -93,23 +99,24 @@
             <!-- Cramer's Rule -->
             <div id="cramers-rule" class="bg-white p-6 shadow-xl rounded-xl border border-indigo-100">
                 <h2 class="text-2xl font-bold text-indigo-600 mb-4 border-b pb-2">2. Cramer's Rule (2x2)</h2>
+                <p class="text-sm text-gray-500 mb-4">Enter coefficients for $A_1 x + B_1 y = C_1$</p>
                 <div class="space-y-4">
                     <div class="flex flex-col space-y-4">
-                        <!-- Row 1 Input (Uses same IDs as Gaussian for simplicity) -->
+                        <!-- Row 1 Input: A1x + B1y = C1 -->
                         <div class="flex items-center space-x-2">
-                            <input type="number" id="cr_a11" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="a11">
+                            <input type="number" id="cr_a11" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="A1">
                             <span class="text-xl">x +</span>
-                            <input type="number" id="cr_a12" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="a12">
+                            <input type="number" id="cr_a12" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="B1">
                             <span class="text-xl">y =</span>
-                            <input type="number" id="cr_b1" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="b1">
+                            <input type="number" id="cr_b1" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="C1">
                         </div>
-                        <!-- Row 2 Input -->
+                        <!-- Row 2 Input: A2x + B2y = C2 -->
                         <div class="flex items-center space-x-2">
-                            <input type="number" id="cr_a21" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="a21">
+                            <input type="number" id="cr_a21" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="A2">
                             <span class="text-xl">x +</span>
-                            <input type="number" id="cr_a22" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="a22">
+                            <input type="number" id="cr_a22" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="B2">
                             <span class="text-xl">y =</span>
-                            <input type="number" id="cr_b2" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="b2">
+                            <input type="number" id="cr_b2" class="matrix-input border rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="C2">
                         </div>
                     </div>
                     <button onclick="calculateCramersRule()" class="w-full bg-indigo-500 text-white py-2 rounded-lg hover:bg-indigo-600 transition duration-150 shadow-md">Solve</button>
@@ -203,7 +210,7 @@
             ];
 
             // 2. Normalize R1 (if a11 != 1)
-            if (a11 !== 1) {
+            if (a11 !== 1 && Math.abs(a11) > 0.000001) {
                 const factor = a11;
                 M[0][0] /= factor;
                 M[0][1] /= factor;
@@ -284,11 +291,11 @@
 
             // 2. Calculate Determinant Dx
             const Dx = b1 * a22 - a12 * b2;
-            workingDiv.innerHTML += `<div class="working-step">Step 2: Calculate Determinant Dₓ (Replace x-column with B): <br> Dₓ = (${format(b1)} * ${format(a22)}) - (${format(a12)} * ${format(b2)}) <br> Dₓ = ${format(b1 * a22)} - ${format(a12 * b2)} = ${format(Dx)}</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Step 2: Calculate Determinant Dₓ (Replace x-column with C): <br> Dₓ = (${format(b1)} * ${format(a22)}) - (${format(a12)} * ${format(b2)}) <br> Dₓ = ${format(b1 * a22)} - ${format(a12 * b2)} = ${format(Dx)}</div>`;
 
             // 3. Calculate Determinant Dy
             const Dy = a11 * b2 - b1 * a21;
-            workingDiv.innerHTML += `<div class="working-step">Step 3: Calculate Determinant Dᵧ (Replace y-column with B): <br> Dᵧ = (${format(a11)} * ${format(b2)}) - (${format(b1)} * ${format(a21)}) <br> Dᵧ = ${format(a11 * b2)} - ${format(b1 * a21)} = ${format(Dy)}</div>`;
+            workingDiv.innerHTML += `<div class="working-step">Step 3: Calculate Determinant Dᵧ (Replace y-column with C): <br> Dᵧ = (${format(a11)} * ${format(b2)}) - (${format(b1)} * ${format(a21)}) <br> Dᵧ = ${format(a11 * b2)} - ${format(b1 * a21)} = ${format(Dy)}</div>`;
 
             // 4. Calculate x and y
             const x = Dx / D;
@@ -354,22 +361,31 @@
             );
             // Calculate dynamic scale, ensuring it doesn't try to divide by zero or scale too aggressively
             const dynamicScale = Math.max(1, Math.floor(Math.min(centerX / maxVal, centerY / maxVal)) - 2);
+            
+            // Interval for labels, ensure we don't label too frequently
+            const labelInterval = Math.max(1, Math.ceil(maxVal / 5));
 
             // Clear canvas
             ctx.clearRect(0, 0, width, height);
 
-            // Draw Grid
+            // Draw Grid (using label interval for major grid lines)
             ctx.strokeStyle = '#e0e0e0';
             ctx.lineWidth = 0.5;
-            for (let i = 0; i <= width / dynamicScale; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * dynamicScale, 0);
-                ctx.lineTo(i * dynamicScale, height);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(0, i * dynamicScale);
-                ctx.lineTo(width, i * dynamicScale);
-                ctx.stroke();
+            for (let i = -width; i <= width; i += labelInterval * dynamicScale) {
+                // Vertical lines
+                if (i !== 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(centerX + i, 0);
+                    ctx.lineTo(centerX + i, height);
+                    ctx.stroke();
+                }
+                // Horizontal lines
+                if (i !== 0) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, centerY + i);
+                    ctx.lineTo(width, centerY + i);
+                    ctx.stroke();
+                }
             }
 
             // Draw Axes
@@ -383,6 +399,43 @@
             // Function to convert vector coordinates to canvas coordinates
             function toCanvasX(x) { return centerX + x * dynamicScale; }
             function toCanvasY(y) { return centerY - y * dynamicScale; }
+
+            // Draw Axis Labels (Coordinates)
+            ctx.fillStyle = '#000000';
+            ctx.font = '10px sans-serif';
+
+            // Iterate over visible coordinates
+            const maxCoords = Math.floor(Math.min(width, height) / (2 * dynamicScale));
+
+            // X-axis labels and ticks
+            for (let i = -maxCoords; i <= maxCoords; i++) {
+                if (i !== 0 && Math.abs(i) % labelInterval === 0) {
+                    const xPos = toCanvasX(i);
+                    // Draw tick mark
+                    ctx.beginPath();
+                    ctx.moveTo(xPos, centerY - 3);
+                    ctx.lineTo(xPos, centerY + 3);
+                    ctx.stroke();
+
+                    // Draw label
+                    ctx.fillText(i.toString(), xPos - (i >= 0 ? 5 : 8), centerY + 15);
+                }
+            }
+
+            // Y-axis labels and ticks
+            for (let i = -maxCoords; i <= maxCoords; i++) {
+                if (i !== 0 && Math.abs(i) % labelInterval === 0) {
+                    const yPos = toCanvasY(i);
+                    // Draw tick mark
+                    ctx.beginPath();
+                    ctx.moveTo(centerX - 3, yPos);
+                    ctx.lineTo(centerX + 3, yPos);
+                    ctx.stroke();
+
+                    // Draw label
+                    ctx.fillText(i.toString(), centerX + 5, yPos + 4);
+                }
+            }
 
             // Function to draw an arrow (vector)
             function drawArrow(v, color, label) {
@@ -442,9 +495,10 @@
             ctx.setLineDash([]); // Reset line dash
         }
 
-        // Initialize with default calculations on load - removed initial calls to ensure clean slate
+        // Initialize the canvas with a grid when the window loads
         window.onload = function() {
-            // Placeholder: Optionally, you could call drawVectors([0,0], [0,0], [0,0]) here to draw an empty grid.
+            // Draw an empty grid on load
+            drawVectors([0, 0], [0, 0], [0, 0]);
         };
 
     </script>
